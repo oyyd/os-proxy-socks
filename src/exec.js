@@ -1,17 +1,17 @@
-'use strict';
+import { exec as e } from 'child_process'
 
-const { execFile } = require('child_process');
+const exec = (...args) => new Promise((resolve, reject) => {
+  const cmd = args[0]
+  const execCmd = `${cmd} ${args[1].join(' ')}`
 
-const exec = (...args) => {
-    return new Promise((resolve, reject) => {
-        execFile(...args, (err, stdout) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            resolve(stdout);
-        });
-    });
-};
+  e(execCmd, (err, stdout) => {
+    if (err) {
+      reject(err)
+      return
+    }
 
-module.exports = exec;
+    resolve(stdout)
+  })
+})
+
+export default exec

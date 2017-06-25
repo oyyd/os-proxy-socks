@@ -1,45 +1,41 @@
-'use strict';
-
-const exec = require('./exec');
+import exec from './exec'
 
 // CLI that manages network devices / services.
-const cli = {
-    // OS X.
-    darwin : 'networksetup',
-    // Windows (32-bit or 64-bit)
-    win32  : 'reg'
-    // NOTE: We could also detect: freebsd, linux, sunos
-}[process.platform];
+const executable = {
+  // OS X.
+  darwin: 'networksetup',
+  // Windows (32-bit or 64-bit)
+  win32: 'reg',
+  // NOTE: We could also detect: freebsd, linux, sunos
+}[process.platform]
 
-const cliArg = {
-    darwin : {
-        get     : '-getwebproxy',
-        set     : '-setwebproxy',
-        enable  : '-setwebproxystate',
-        disable : '-setwebproxystate'
-    },
-    win32 : {
-        get     : '',
-        set     : '',
-        enable  : '',
-        disable : [
-            'add',
-            '"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"',
-            '/v ProxyEnable',
-            '/t REG_DWORD',
-            '/d 0',
-            '/f'
-        ].join(' ')
-    }
-}[process.platform];
+const execArgs = {
+  darwin: {
+    get: '-getsocksfirewallproxy',
+    set: '-setsocksfirewallproxy',
+    enable: '-setsocksfirewallproxystate',
+    disable: '-setsocksfirewallproxystate',
+  },
+  win32: {
+    get: '',
+    set: '',
+    enable: '',
+    disable: [
+      'add',
+      '"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"',
+      '/v ProxyEnable',
+      '/t REG_DWORD',
+      '/d 0',
+      '/f',
+    ].join(' '),
+  },
+}[process.platform]
 
-const manage = (...args) => {
-    return exec(cli, args);
-};
+const manage = (...args) => exec(executable, args)
 
-manage.get = manage.bind(null, cliArg.get);
-manage.set = manage.bind(null, cliArg.set);
-manage.enable = manage.bind(null, cliArg.enable);
-manage.disable = manage.bind(null, cliArg.disable);
+manage.get = manage.bind(null, execArgs.get)
+manage.set = manage.bind(null, execArgs.set)
+manage.enable = manage.bind(null, execArgs.enable)
+manage.disable = manage.bind(null, execArgs.disable)
 
-module.exports = manage;
+export default manage
